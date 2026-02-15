@@ -1,0 +1,11 @@
+C:\Users\saifh\Desktop\TradingPlatform-POC\TradingPlatform.Domain\bin\Debug\net10.0\TradingPlatform.Domain.deps.json
+C:\Users\saifh\Desktop\TradingPlatform-POC\TradingPlatform.Domain\bin\Debug\net10.0\TradingPlatform.Domain.dll
+C:\Users\saifh\Desktop\TradingPlatform-POC\TradingPlatform.Domain\bin\Debug\net10.0\TradingPlatform.Domain.pdb
+C:\Users\saifh\Desktop\TradingPlatform-POC\TradingPlatform.Domain\obj\Debug\net10.0\TradingPlatform.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\saifh\Desktop\TradingPlatform-POC\TradingPlatform.Domain\obj\Debug\net10.0\TradingPlatform.Domain.AssemblyInfoInputs.cache
+C:\Users\saifh\Desktop\TradingPlatform-POC\TradingPlatform.Domain\obj\Debug\net10.0\TradingPlatform.Domain.AssemblyInfo.cs
+C:\Users\saifh\Desktop\TradingPlatform-POC\TradingPlatform.Domain\obj\Debug\net10.0\TradingPlatform.Domain.csproj.CoreCompileInputs.cache
+C:\Users\saifh\Desktop\TradingPlatform-POC\TradingPlatform.Domain\obj\Debug\net10.0\TradingPlatform.Domain.dll
+C:\Users\saifh\Desktop\TradingPlatform-POC\TradingPlatform.Domain\obj\Debug\net10.0\refint\TradingPlatform.Domain.dll
+C:\Users\saifh\Desktop\TradingPlatform-POC\TradingPlatform.Domain\obj\Debug\net10.0\TradingPlatform.Domain.pdb
+C:\Users\saifh\Desktop\TradingPlatform-POC\TradingPlatform.Domain\obj\Debug\net10.0\ref\TradingPlatform.Domain.dll

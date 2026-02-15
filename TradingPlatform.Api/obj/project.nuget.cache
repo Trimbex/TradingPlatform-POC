@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "3cQchakbJ+E=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\saifh\\Desktop\\TradingPlatform-POC\\TradingPlatform.Api\\TradingPlatform.Api.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\saifh\\.nuget\\packages\\microsoft.aspnetcore.openapi\\10.0.3\\microsoft.aspnetcore.openapi.10.0.3.nupkg.sha512",
+    "C:\\Users\\saifh\\.nuget\\packages\\microsoft.openapi\\2.0.0\\microsoft.openapi.2.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
