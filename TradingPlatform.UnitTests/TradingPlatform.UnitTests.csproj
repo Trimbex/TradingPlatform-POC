@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TradingPlatform.Application\TradingPlatform.Application.csproj" />
     <ProjectReference Include="..\TradingPlatform.Domain\TradingPlatform.Domain.csproj" />
   </ItemGroup>
 
