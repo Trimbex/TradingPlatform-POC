@@ -3,4 +3,5 @@
   <Project Path="TradingPlatform.Application/TradingPlatform.Application.csproj" />
   <Project Path="TradingPlatform.Domain/TradingPlatform.Domain.csproj" />
   <Project Path="TradingPlatform.Infrastructure/TradingPlatform.Infrastructure.csproj" />
+  <Project Path="TradingPlatform.UnitTests/TradingPlatform.UnitTests.csproj" />
 </Solution>
