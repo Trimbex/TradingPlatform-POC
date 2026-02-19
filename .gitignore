@@ -97,6 +97,9 @@ _ReSharper*/
 # Node (if frontend tooling added)
 node_modules/
 
+# EF Core generated migration script (regenerate with: dotnet ef migrations script)
+migration.sql
+
 # Misc
 *.log
 *.tmp

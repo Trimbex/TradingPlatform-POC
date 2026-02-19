@@ -1,4 +1,5 @@
 using TradingPlatform.Application.Extensions;
+using TradingPlatform.Domain.Interfaces;
 using TradingPlatform.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,6 +38,14 @@ app.MapGet("/weatherforecast", () =>
     return forecast;
 })
 .WithName("GetWeatherForecast");
+
+// Verify repository resolution - GET /orders?userId=user-1
+app.MapGet("/orders", async (string userId, IOrderRepository orderRepository, CancellationToken ct) =>
+{
+    var orders = await orderRepository.GetByUserAsync(userId, ct);
+    return Results.Ok(orders.Select(o => new { o.Id, o.UserId, o.Symbol, o.Quantity, o.Price, o.Status, o.CreatedAt }));
+})
+.WithName("GetOrders");
 
 app.Run();
 
