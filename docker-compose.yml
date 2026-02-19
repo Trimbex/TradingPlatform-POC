@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: tradingplatform-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: tradingplatform
+      POSTGRES_PASSWORD: tradingplatform
+      POSTGRES_DB: TradingPlatform
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
