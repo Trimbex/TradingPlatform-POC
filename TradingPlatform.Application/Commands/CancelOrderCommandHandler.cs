@@ -1,4 +1,5 @@
 using MediatR;
+using TradingPlatform.Application.Exceptions;
 using TradingPlatform.Domain.Interfaces;
 
 namespace TradingPlatform.Application.Commands;
@@ -15,7 +16,7 @@ public class CancelOrderCommandHandler : IRequestHandler<CancelOrderCommand, Uni
     public async Task<Unit> Handle(CancelOrderCommand request, CancellationToken cancellationToken)
     {
         var order = await _orderRepository.GetByIdAsync(request.OrderId, cancellationToken)
-            ?? throw new InvalidOperationException($"Order {request.OrderId} not found.");
+            ?? throw new NotFoundException($"Order {request.OrderId} not found.");
 
         order.Cancel();
         await _orderRepository.UpdateAsync(order, cancellationToken);

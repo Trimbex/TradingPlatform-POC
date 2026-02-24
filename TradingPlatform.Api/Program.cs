@@ -1,3 +1,4 @@
+using TradingPlatform.Api.Middleware;
 using TradingPlatform.Application.Extensions;
 using TradingPlatform.Infrastructure.Extensions;
 
@@ -14,6 +15,7 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseExceptionHandling();
 app.UseHttpsRedirection();
 
 if (app.Environment.IsDevelopment())
