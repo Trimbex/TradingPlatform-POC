@@ -12,13 +12,16 @@ builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var app = builder.Build();
+var app = builder.Build(); 
 
 // Configure the HTTP request pipeline.
 app.UseExceptionHandling();
-app.UseHttpsRedirection();
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    app.UseHttpsRedirection();
+}
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Testing"))
 {
     app.MapOpenApi();
     app.UseSwagger();
@@ -28,3 +31,6 @@ if (app.Environment.IsDevelopment())
 app.MapControllers();
 
 app.Run();
+
+/// <summary>Exposed for integration testing with WebApplicationFactory.</summary>
+public partial class Program { }

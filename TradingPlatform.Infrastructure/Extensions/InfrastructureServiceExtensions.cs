@@ -13,9 +13,16 @@ public static class InfrastructureServiceExtensions
     {
         services.AddDbContext<TradingDbContext>(options =>
         {
-            var connectionString = configuration.GetConnectionString("DefaultConnection")
-                ?? "Host=localhost;Port=5432;Database=TradingPlatform;Username=tradingplatform;Password=tradingplatform";
-            options.UseNpgsql(connectionString);
+            if (configuration["UseInMemoryDatabase"] == "true")
+            {
+                options.UseInMemoryDatabase("TradingPlatform");
+            }
+            else
+            {
+                var connectionString = configuration.GetConnectionString("DefaultConnection")
+                    ?? "Host=localhost;Port=5432;Database=TradingPlatform;Username=tradingplatform;Password=tradingplatform";
+                options.UseNpgsql(connectionString);
+            }
         });
 
         services.AddScoped<IOrderRepository, OrderRepository>();
