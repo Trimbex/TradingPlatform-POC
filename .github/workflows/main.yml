@@ -1,1 +1,73 @@
+name: CI
 
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore TradingPlatform.Api/TradingPlatform.Api.csproj
+
+      - name: Build
+        run: dotnet build TradingPlatform.Api/TradingPlatform.Api.csproj --no-restore -c Release
+
+      - name: Publish
+        run: dotnet publish TradingPlatform.Api/TradingPlatform.Api.csproj -c Release -o ./publish --no-build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-publish
+          path: ./publish
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore TradingPlatform.Api/TradingPlatform.Api.csproj
+
+      - name: Build
+        run: dotnet build TradingPlatform.Api/TradingPlatform.Api.csproj --no-restore -c Release
+
+      - name: Run Unit & Integration Tests
+        run: |
+          dotnet test TradingPlatform.UnitTests/TradingPlatform.UnitTests.csproj -c Release --no-build
+          dotnet test TradingPlatform.IntegrationTests/TradingPlatform.IntegrationTests.csproj -c Release --no-build
