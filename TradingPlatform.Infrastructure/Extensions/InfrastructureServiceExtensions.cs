@@ -31,6 +31,9 @@ public static class InfrastructureServiceExtensions
         services.AddScoped<ITransactionRepository, TransactionRepository>();
         services.AddSingleton<IEventPublisher, KafkaEventPublisher>();
 
+        if (configuration["Kafka:ConsumerEnabled"] != "false")
+            services.AddHostedService<OrderEventConsumer>();
+
         return services;
     }
 }

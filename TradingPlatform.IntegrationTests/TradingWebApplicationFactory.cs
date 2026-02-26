@@ -14,7 +14,8 @@ public class TradingWebApplicationFactory : WebApplicationFactory<Program>
         {
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["UseInMemoryDatabase"] = "true"
+                ["UseInMemoryDatabase"] = "true",
+                ["Kafka:ConsumerEnabled"] = "false"
             });
         });
     }

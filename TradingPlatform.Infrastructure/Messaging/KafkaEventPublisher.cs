@@ -2,6 +2,7 @@ using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using TradingPlatform.Domain.Events;
 using TradingPlatform.Domain.Interfaces;
 
 namespace TradingPlatform.Infrastructure.Messaging;
@@ -9,7 +10,8 @@ namespace TradingPlatform.Infrastructure.Messaging;
 public class KafkaEventPublisher : IEventPublisher, IDisposable
 {
     private readonly IProducer<string, string> _producer;
-    private readonly string _topic;
+    private readonly string _domainEventsTopic;
+    private readonly string _orderEventsTopic;
     private readonly ILogger<KafkaEventPublisher> _logger;
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -22,7 +24,8 @@ public class KafkaEventPublisher : IEventPublisher, IDisposable
         _logger = logger;
 
         var bootstrapServers = configuration["Kafka:BootstrapServers"] ?? "localhost:9092";
-        _topic = configuration["Kafka:Topic"] ?? "domain-events";
+        _domainEventsTopic = configuration["Kafka:Topic"] ?? "domain-events";
+        _orderEventsTopic = configuration["Kafka:OrderEventsTopic"] ?? "order-events";
 
         var config = new ProducerConfig
         {
@@ -53,9 +56,11 @@ public class KafkaEventPublisher : IEventPublisher, IDisposable
             }
         };
 
+        var topic = GetTopicForEventType(typeof(T));
+
         try
         {
-            var result = await _producer.ProduceAsync(_topic, message, cancellationToken);
+            var result = await _producer.ProduceAsync(topic, message, cancellationToken);
             _logger.LogDebug("Published event {EventType} to {Topic} partition {Partition} offset {Offset}",
                 eventType, result.Topic, result.Partition.Value, result.Offset.Value);
         }
@@ -65,6 +70,13 @@ public class KafkaEventPublisher : IEventPublisher, IDisposable
                 eventType, ex.Error.Reason);
             throw;
         }
+    }
+
+    private string GetTopicForEventType(Type eventType)
+    {
+        if (eventType == typeof(OrderPlacedEvent) || eventType == typeof(OrderCancelledEvent) || eventType == typeof(OrderExecutedEvent))
+            return _orderEventsTopic;
+        return _domainEventsTopic;
     }
 
     public void Dispose() => _producer.Dispose();
