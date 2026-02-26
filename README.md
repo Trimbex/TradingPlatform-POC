@@ -1,6 +1,6 @@
-# Trading Platform (beta)
+# Trading Platform (WIP)
 
-A proof-of-concept trading platform built with .NET 10, featuring portfolio management, order placement, and event-driven architecture with Kafka.
+> **Work in progress** — A proof-of-concept trading platform built with .NET 10, featuring portfolio management, order placement, and event-driven architecture with Kafka.
 
 ## Features
 
@@ -118,6 +118,12 @@ Connection strings and settings are in `TradingPlatform.Api/appsettings.json`. T
 - **User/Password:** tradingplatform  
 
 Integration tests use an in-memory database (`UseInMemoryDatabase: true`).
+
+## Roadmap
+
+- [ ] **Deploy to Kubernetes (k8s)** — Container orchestration and production deployment
+- [ ] **Redis caching** — Cache frequently accessed data (portfolios, orders)
+- [ ] **Notification service** — Real-time or async notifications (e.g. order fills, balance alerts)
 
 ## CI/CD
 
