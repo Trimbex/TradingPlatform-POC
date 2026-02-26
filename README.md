@@ -1,6 +1,6 @@
 # Trading Platform (WIP)
 
-> **Work in progress** — A proof-of-concept trading platform built with .NET 10, featuring portfolio management, order placement, and event-driven architecture with Kafka.
+> **Work in progress** — A trading platform built with .NET 10, featuring portfolio management, order placement, and event-driven architecture with Kafka.
 
 ## Features
 
