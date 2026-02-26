@@ -1,5 +1,6 @@
 using MediatR;
 using TradingPlatform.Domain.Entities;
+using TradingPlatform.Domain.Events;
 using TradingPlatform.Domain.Interfaces;
 
 namespace TradingPlatform.Application.Commands;
@@ -7,10 +8,12 @@ namespace TradingPlatform.Application.Commands;
 public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Guid>
 {
     private readonly IOrderRepository _orderRepository;
+    private readonly IEventPublisher _eventPublisher;
 
-    public PlaceOrderCommandHandler(IOrderRepository orderRepository)
+    public PlaceOrderCommandHandler(IOrderRepository orderRepository, IEventPublisher eventPublisher)
     {
         _orderRepository = orderRepository;
+        _eventPublisher = eventPublisher;
     }
 
     public async Task<Guid> Handle(PlaceOrderCommand request, CancellationToken cancellationToken)
@@ -26,6 +29,14 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Guid>
 
         var order = Order.Create(request.UserId, request.Symbol, request.Quantity, request.Price);
         await _orderRepository.AddAsync(order, cancellationToken);
+
+        await _eventPublisher.PublishAsync(new OrderPlacedEvent(
+            order.Id,
+            order.UserId,
+            order.Symbol,
+            order.Quantity,
+            order.Price
+        ), cancellationToken);
 
         return order.Id;
     }

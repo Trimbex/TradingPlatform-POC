@@ -38,7 +38,7 @@ This starts:
 | Service | Port | Description |
 |---------|------|-------------|
 | PostgreSQL | 5432 | Database |
-| Kafka | 9092 | Event streaming |
+| Kafka | 9092, 9094 | Event streaming (9092=host, 9094=Docker) |
 | Kafdrop | 19000 | Kafka UI — http://localhost:19000 |
 
 ### 2. Run the API
@@ -118,6 +118,8 @@ Connection strings and settings are in `TradingPlatform.Api/appsettings.json`. T
 - **User/Password:** tradingplatform  
 
 Integration tests use an in-memory database (`UseInMemoryDatabase: true`).
+
+See [docs/KAFKA-NETWORKING.md](docs/KAFKA-NETWORKING.md) for Kafka port flow diagrams and CI/CD port reference.
 
 ## Roadmap
 

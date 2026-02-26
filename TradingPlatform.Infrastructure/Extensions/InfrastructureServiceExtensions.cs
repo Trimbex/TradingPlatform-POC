@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TradingPlatform.Domain.Interfaces;
+using TradingPlatform.Infrastructure.Messaging;
 using TradingPlatform.Infrastructure.Persistence;
 using TradingPlatform.Infrastructure.Persistence.Repositories;
 
@@ -28,6 +29,7 @@ public static class InfrastructureServiceExtensions
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IPortfolioRepository, PortfolioRepository>();
         services.AddScoped<ITransactionRepository, TransactionRepository>();
+        services.AddSingleton<IEventPublisher, KafkaEventPublisher>();
 
         return services;
     }
