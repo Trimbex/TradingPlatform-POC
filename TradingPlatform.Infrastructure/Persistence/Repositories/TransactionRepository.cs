@@ -21,13 +21,8 @@ public class TransactionRepository : ITransactionRepository
 
     public async Task<IEnumerable<Transaction>> GetByUserAsync(string userId, CancellationToken cancellationToken = default)
     {
-        var orderIds = await _context.Orders
-            .Where(o => o.UserId == userId)
-            .Select(o => o.Id)
-            .ToListAsync(cancellationToken);
-
         return await _context.Transactions
-            .Where(t => t.OrderId != null && orderIds.Contains(t.OrderId.Value))
+            .Where(t => t.UserId == userId)
             .OrderByDescending(t => t.Timestamp)
             .ToListAsync(cancellationToken);
     }

@@ -27,7 +27,7 @@ public class WithdrawFundsCommandHandler : IRequestHandler<WithdrawFundsCommand,
         portfolio.Withdraw(request.Amount);
         await _portfolioRepository.UpdateAsync(portfolio, cancellationToken);
 
-        var transaction = Transaction.Create(null, TransactionType.Withdrawal, request.Amount);
+        var transaction = Transaction.Create(request.UserId, null, TransactionType.Withdrawal, request.Amount);
         await _transactionRepository.AddAsync(transaction, cancellationToken);
 
         return Unit.Value;

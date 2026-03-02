@@ -52,6 +52,7 @@ public class TradingDbContext : DbContext
         modelBuilder.Entity<Transaction>(entity =>
         {
             entity.HasKey(e => e.Id);
+            entity.Property(e => e.UserId).IsRequired().HasMaxLength(100);
             entity.Property(e => e.OrderId);
             entity.Property(e => e.Type).HasConversion<string>().HasMaxLength(50);
             entity.Property(e => e.Amount).HasPrecision(18, 4);

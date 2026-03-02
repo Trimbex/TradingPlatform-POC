@@ -43,7 +43,7 @@ public class ExecuteOrderCommandHandler : IRequestHandler<ExecuteOrderCommand, U
         portfolio.Withdraw(orderTotal);
         portfolio.AddHolding(order.Symbol, order.Quantity, order.Price);
 
-        var transaction = Transaction.Create(order.Id, TransactionType.OrderPayment, orderTotal);
+        var transaction = Transaction.Create(order.UserId, order.Id, TransactionType.OrderPayment, orderTotal);
 
         await _unitOfWork.BeginTransactionAsync(cancellationToken);
         try
