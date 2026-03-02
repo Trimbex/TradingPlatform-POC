@@ -37,7 +37,9 @@ public class ExceptionHandlingMiddleware
             NotFoundException => (HttpStatusCode.NotFound, CreateErrorResponse(exception.Message)),
             UnauthorizedAccessException => (HttpStatusCode.Unauthorized, CreateErrorResponse(exception.Message)),
             _ => (HttpStatusCode.InternalServerError, CreateErrorResponse(
-                _environment.IsDevelopment() ? exception.ToString() : "An unexpected error occurred."))
+                (_environment.IsDevelopment() || _environment.IsEnvironment("Testing"))
+                    ? exception.ToString()
+                    : "An unexpected error occurred."))
         };
 
         context.Response.ContentType = "application/json";

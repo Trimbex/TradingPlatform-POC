@@ -38,6 +38,8 @@ services:
       - kafka
 
   api:
+    profiles:
+      - full
     build:
       context: .
       dockerfile: TradingPlatform.Api/Dockerfile

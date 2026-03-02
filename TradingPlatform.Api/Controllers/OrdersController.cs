@@ -48,6 +48,18 @@ public class OrdersController : ControllerBase
         return Ok(orders);
     }
 
+    /// <summary>Execute a pending order (deducts cash, adds holding, records transaction).</summary>
+    [HttpPost("{orderId:guid}/execute")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ExecuteOrder(Guid orderId, CancellationToken cancellationToken)
+    {
+        var command = new ExecuteOrderCommand(orderId);
+        await _mediator.Send(command, cancellationToken);
+        return NoContent();
+    }
+
     /// <summary>Cancel a pending order.</summary>
     [HttpDelete("{orderId:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

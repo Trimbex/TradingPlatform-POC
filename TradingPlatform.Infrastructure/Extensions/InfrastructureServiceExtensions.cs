@@ -29,6 +29,10 @@ public static class InfrastructureServiceExtensions
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IPortfolioRepository, PortfolioRepository>();
         services.AddScoped<ITransactionRepository, TransactionRepository>();
+        if (configuration["UseInMemoryDatabase"] == "true")
+            services.AddScoped<IUnitOfWork, NoOpUnitOfWork>();
+        else
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddSingleton<IEventPublisher, KafkaEventPublisher>();
 
         if (configuration["Kafka:ConsumerEnabled"] != "false")

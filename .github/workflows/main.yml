@@ -53,6 +53,9 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
+      - name: Verify Docker is available
+        run: docker version
+
       - name: Cache NuGet packages
         uses: actions/cache@v3
         with:
