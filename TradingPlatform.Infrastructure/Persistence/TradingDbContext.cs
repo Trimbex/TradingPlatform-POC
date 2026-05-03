@@ -13,6 +13,7 @@ public class TradingDbContext : DbContext
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<Portfolio> Portfolios => Set<Portfolio>();
     public DbSet<Transaction> Transactions => Set<Transaction>();
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -58,6 +59,17 @@ public class TradingDbContext : DbContext
             entity.Property(e => e.Amount).HasPrecision(18, 4);
             entity.Property(e => e.Timestamp).IsRequired();
             entity.Property(e => e.Status).HasConversion<string>().HasMaxLength(20);
+        });
+
+        // OutboxMessage
+        modelBuilder.Entity<OutboxMessage>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Type).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.Payload).IsRequired();
+            entity.Property(e => e.OccurredOnUtc).IsRequired();
+            entity.HasIndex(e => e.ProcessedOnUtc);
+            entity.HasIndex(e => e.OccurredOnUtc);
         });
     }
 }

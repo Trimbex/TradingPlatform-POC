@@ -12,20 +12,20 @@ public class ExecuteOrderCommandHandler : IRequestHandler<ExecuteOrderCommand, U
     private readonly IOrderRepository _orderRepository;
     private readonly IPortfolioRepository _portfolioRepository;
     private readonly ITransactionRepository _transactionRepository;
-    private readonly IEventPublisher _eventPublisher;
+    private readonly IOutboxWriter _outboxWriter;
     private readonly IUnitOfWork _unitOfWork;
 
     public ExecuteOrderCommandHandler(
         IOrderRepository orderRepository,
         IPortfolioRepository portfolioRepository,
         ITransactionRepository transactionRepository,
-        IEventPublisher eventPublisher,
+        IOutboxWriter outboxWriter,
         IUnitOfWork unitOfWork)
     {
         _orderRepository = orderRepository;
         _portfolioRepository = portfolioRepository;
         _transactionRepository = transactionRepository;
-        _eventPublisher = eventPublisher;
+        _outboxWriter = outboxWriter;
         _unitOfWork = unitOfWork;
     }
 
@@ -51,6 +51,7 @@ public class ExecuteOrderCommandHandler : IRequestHandler<ExecuteOrderCommand, U
             await _orderRepository.UpdateAsync(order, cancellationToken);
             await _portfolioRepository.UpdateAsync(portfolio, cancellationToken);
             await _transactionRepository.AddAsync(transaction, cancellationToken);
+            await _outboxWriter.EnqueueAsync(new OrderExecutedEvent(order.Id), cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);
         }
         catch
@@ -58,8 +59,6 @@ public class ExecuteOrderCommandHandler : IRequestHandler<ExecuteOrderCommand, U
             await _unitOfWork.RollbackAsync(cancellationToken);
             throw;
         }
-
-        await _eventPublisher.PublishAsync(new OrderExecutedEvent(order.Id), cancellationToken);
 
         return Unit.Value;
     }

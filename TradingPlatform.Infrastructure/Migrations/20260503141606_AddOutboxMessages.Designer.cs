@@ -8,14 +8,14 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TradingPlatform.Infrastructure.Persistence;
 
 #nullable disable
- 
+
 namespace TradingPlatform.Infrastructure.Migrations
 {
     [DbContext(typeof(TradingDbContext))]
-    [Migration("20260219082118_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260503141606_AddOutboxMessages")]
+    partial class AddOutboxMessages
     {
-        /// <inheritdoc />
+        /// <inheritdoc /> 
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
@@ -108,9 +108,50 @@ namespace TradingPlatform.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Transactions");
+                });
+
+            modelBuilder.Entity("TradingPlatform.Infrastructure.Persistence.OutboxMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Error")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("OccurredOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Payload")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ProcessedOnUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("RetryCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OccurredOnUtc");
+
+                    b.HasIndex("ProcessedOnUtc");
+
+                    b.ToTable("OutboxMessages");
                 });
 
             modelBuilder.Entity("TradingPlatform.Domain.Entities.Portfolio", b =>

@@ -10,35 +10,48 @@ public class DepositFundsCommandHandler : IRequestHandler<DepositFundsCommand, U
 {
     private readonly IPortfolioRepository _portfolioRepository;
     private readonly ITransactionRepository _transactionRepository;
-    private readonly IEventPublisher _eventPublisher;
+    private readonly IOutboxWriter _outboxWriter;
+    private readonly IUnitOfWork _unitOfWork;
 
     public DepositFundsCommandHandler(
         IPortfolioRepository portfolioRepository,
         ITransactionRepository transactionRepository,
-        IEventPublisher eventPublisher)
+        IOutboxWriter outboxWriter,
+        IUnitOfWork unitOfWork)
     {
         _portfolioRepository = portfolioRepository;
         _transactionRepository = transactionRepository;
-        _eventPublisher = eventPublisher;
+        _outboxWriter = outboxWriter;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<Unit> Handle(DepositFundsCommand request, CancellationToken cancellationToken)
     {
-        var portfolio = await _portfolioRepository.GetByUserAsync(request.UserId, cancellationToken);
-
-        if (portfolio is null)
+        await _unitOfWork.BeginTransactionAsync(cancellationToken);
+        try
         {
-            portfolio = Portfolio.Create(request.UserId);
-            await _portfolioRepository.AddAsync(portfolio, cancellationToken);
+            var portfolio = await _portfolioRepository.GetByUserAsync(request.UserId, cancellationToken);
+
+            if (portfolio is null)
+            {
+                portfolio = Portfolio.Create(request.UserId);
+                await _portfolioRepository.AddAsync(portfolio, cancellationToken);
+            }
+
+            portfolio.AddFunds(request.Amount);
+            await _portfolioRepository.UpdateAsync(portfolio, cancellationToken);
+
+            var transaction = Transaction.Create(request.UserId, null, TransactionType.Deposit, request.Amount);
+            await _transactionRepository.AddAsync(transaction, cancellationToken);
+
+            await _outboxWriter.EnqueueAsync(new FundsDepositedEvent(request.UserId, request.Amount), cancellationToken);
+            await _unitOfWork.CommitAsync(cancellationToken);
         }
-
-        portfolio.AddFunds(request.Amount);
-        await _portfolioRepository.UpdateAsync(portfolio, cancellationToken);
-
-        var transaction = Transaction.Create(request.UserId, null, TransactionType.Deposit, request.Amount);
-        await _transactionRepository.AddAsync(transaction, cancellationToken);
-
-        await _eventPublisher.PublishAsync(new FundsDepositedEvent(request.UserId, request.Amount), cancellationToken);
+        catch
+        {
+            await _unitOfWork.RollbackAsync(cancellationToken);
+            throw;
+        }
 
         return Unit.Value;
     }

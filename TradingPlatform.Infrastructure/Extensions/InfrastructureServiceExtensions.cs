@@ -33,7 +33,11 @@ public static class InfrastructureServiceExtensions
             services.AddScoped<IUnitOfWork, NoOpUnitOfWork>();
         else
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IOutboxWriter, OutboxWriter>();
         services.AddSingleton<IEventPublisher, KafkaEventPublisher>();
+
+        if (configuration["UseInMemoryDatabase"] != "true")
+            services.AddHostedService<OutboxDispatcher>();
 
         if (configuration["Kafka:ConsumerEnabled"] != "false")
             services.AddHostedService<OrderEventConsumer>();
