@@ -26,12 +26,14 @@ public class OutboxWriter : IOutboxWriter
         var eventType = typeof(T).FullName ?? typeof(T).Name;
         var payload = JsonSerializer.Serialize(@event, JsonOptions);
 
+        var now = DateTime.UtcNow;
         await _context.OutboxMessages.AddAsync(new OutboxMessage
         {
             Id = Guid.NewGuid(),
             Type = eventType,
             Payload = payload,
-            OccurredOnUtc = DateTime.UtcNow
+            OccurredOnUtc = now,
+            NextAttemptAtUtc = now
         }, cancellationToken);
 
         await _context.SaveChangesAsync(cancellationToken);

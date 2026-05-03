@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TradingPlatform.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using TradingPlatform.Infrastructure.Persistence;
 namespace TradingPlatform.Infrastructure.Migrations
 {
     [DbContext(typeof(TradingDbContext))]
-    partial class TradingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260503212312_AddOutboxNextAttemptBackoff")]
+    partial class AddOutboxNextAttemptBackoff
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -121,9 +124,6 @@ namespace TradingPlatform.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime?>("DeadLetteredAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("Error")
                         .HasColumnType("text");
 
@@ -149,8 +149,6 @@ namespace TradingPlatform.Infrastructure.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DeadLetteredAtUtc");
 
                     b.HasIndex("NextAttemptAtUtc");
 

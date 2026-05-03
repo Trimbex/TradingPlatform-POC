@@ -31,7 +31,7 @@ public class TradingDbContext : DbContext
             entity.Property(e => e.CreatedAt).IsRequired();
         });
 
-        // Portfolio
+        // Portfolio 
         modelBuilder.Entity<Portfolio>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -68,8 +68,11 @@ public class TradingDbContext : DbContext
             entity.Property(e => e.Type).IsRequired().HasMaxLength(500);
             entity.Property(e => e.Payload).IsRequired();
             entity.Property(e => e.OccurredOnUtc).IsRequired();
+            entity.Property(e => e.NextAttemptAtUtc).IsRequired();
             entity.HasIndex(e => e.ProcessedOnUtc);
             entity.HasIndex(e => e.OccurredOnUtc);
+            entity.HasIndex(e => e.NextAttemptAtUtc);
+            entity.HasIndex(e => e.DeadLetteredAtUtc);
         });
     }
 }

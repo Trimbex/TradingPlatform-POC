@@ -10,6 +10,9 @@ namespace TradingPlatform.Infrastructure.Messaging;
 
 public class OutboxDispatcher : BackgroundService
 {
+    /// <summary>After this many failed dispatch attempts, the message is dead-lettered and not retried.</summary>
+    private const int MaxFailuresBeforeDeadLetter = 10;
+
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<OutboxDispatcher> _logger;
 
@@ -41,10 +44,12 @@ public class OutboxDispatcher : BackgroundService
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<TradingDbContext>();
         var publisher = scope.ServiceProvider.GetRequiredService<IEventPublisher>();
+        var now = DateTime.UtcNow;
 
         var pending = await context.OutboxMessages
-            .Where(x => x.ProcessedOnUtc == null)
-            .OrderBy(x => x.OccurredOnUtc)
+            .Where(x => x.ProcessedOnUtc == null && x.DeadLetteredAtUtc == null && x.NextAttemptAtUtc <= now)
+            .OrderBy(x => x.NextAttemptAtUtc)
+            .ThenBy(x => x.OccurredOnUtc)
             .Take(50)
             .ToListAsync(cancellationToken);
 
@@ -58,8 +63,7 @@ public class OutboxDispatcher : BackgroundService
                 var domainEvent = Deserialize(message);
                 if (domainEvent is null)
                 {
-                    message.RetryCount++;
-                    message.Error = $"Unsupported outbox type '{message.Type}'";
+                    RecordFailure(message, $"Unsupported outbox type '{message.Type}'");
                     continue;
                 }
 
@@ -69,12 +73,43 @@ public class OutboxDispatcher : BackgroundService
             }
             catch (Exception ex)
             {
-                message.RetryCount++;
-                message.Error = ex.Message;
+                RecordFailure(message, ex.Message, ex);
             }
         }
 
         await context.SaveChangesAsync(cancellationToken);
+    }
+
+    private void RecordFailure(OutboxMessage message, string errorDetail, Exception? ex = null)
+    {
+        message.RetryCount++;
+        message.Error = ex?.Message ?? errorDetail;
+
+        if (message.RetryCount >= MaxFailuresBeforeDeadLetter)
+        {
+            message.DeadLetteredAtUtc = DateTime.UtcNow;
+            message.Error = $"{message.Error} | DEAD_LETTER (failures={message.RetryCount})";
+            _logger.LogWarning(
+                ex,
+                "Outbox message {OutboxId} type {EventType} dead-lettered after {RetryCount} failures",
+                message.Id,
+                message.Type,
+                message.RetryCount);
+        }
+        else
+        {
+            message.NextAttemptAtUtc = ComputeNextAttemptUtc(message.RetryCount);
+        }
+    }
+
+    /// <summary>
+    /// Exponential backoff in seconds: 1, 2, 4, … up to cap (300s). <paramref name="retryCount"/> is total failures so far.
+    /// </summary>
+    private static DateTime ComputeNextAttemptUtc(int retryCount)
+    {
+        var exponent = Math.Min(Math.Max(0, retryCount - 1), 8);
+        var seconds = (int)Math.Min(300, Math.Pow(2, exponent));
+        return DateTime.UtcNow.AddSeconds(Math.Max(1, seconds));
     }
 
     private static object? Deserialize(OutboxMessage message)
